@@ -11,7 +11,7 @@ import connectRedis from "connect-redis";
 import session from "express-session";
 
 const prisma = new PrismaClient();
-const { PORT } = process.env;
+const { PORT, REDIS_SECRET } = process.env;
 
 const main = async () => {
   const app = express();
@@ -29,7 +29,7 @@ const main = async () => {
         secure: false,
       },
       saveUninitialized: false,
-      secret: "keyboard cat",
+      secret: REDIS_SECRET as string,
       resave: false,
     })
   );

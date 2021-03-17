@@ -184,4 +184,18 @@ export class UserResolver {
       user,
     };
   }
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { req, res }: MyContext): Promise<Boolean> {
+    return new Promise((resolve) => {
+      req.session.destroy((err) => {
+        res.clearCookie("qid");
+        if (err) {
+          console.log(err.message);
+          resolve(false);
+          return;
+        }
+        resolve(true);
+      });
+    });
+  }
 }
