@@ -8,13 +8,15 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
   return (
     <Flex
       h="16"
-      bgGradient="linear(to-b,#009FFD,#2A2A72)"
       w="full"
+      bgColor="blue.900"
       color="white"
       boxShadow="xl"
       align="center"
     >
-      <Text marginLeft={5}>TECHDOT</Text>
+      <Text marginLeft={5} fontSize={32}>
+        TECHDOT
+      </Text>
       <Flex marginLeft="auto" w="32" marginRight={5} justify="space-between">
         <NextLink href="/login">
           <Link>Login</Link>

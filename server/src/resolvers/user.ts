@@ -9,9 +9,8 @@ import {
   ObjectType,
   Resolver,
 } from "type-graphql";
-import { isEmail } from "../utils/isEmail";
 import { User } from "../entities/User";
-
+import { isEmail } from "../utils/isEmail";
 @InputType()
 class UserInputPassword {
   @Field()
@@ -134,41 +133,39 @@ export class UserResolver {
   ): Promise<UserResponse> {
     const { username, password } = options;
     let user = null;
-    if (username.includes("@")) {
+    if (username.includes("@") && !isEmail(username)) {
+      return {
+        errors: [
+          {
+            field: "username",
+            message: "wrong email format.",
+          },
+        ],
+      };
+    } else if (isEmail(username)) {
       user = await prisma.user.findUnique({
         where: {
           email: username,
         },
       });
-      if (!user) {
-        return {
-          errors: [
-            {
-              field: "email",
-              message: "email not found",
-            },
-          ],
-        };
-      }
     } else {
       user = await prisma.user.findUnique({
         where: {
           username,
         },
       });
-      if (!user) {
-        return {
-          errors: [
-            {
-              field: "username",
-              message: "username not found",
-            },
-          ],
-        };
-      }
     }
-
-    const isMatch = argon2.verify(user!.password, password);
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: "username",
+            message: "user not found.",
+          },
+        ],
+      };
+    }
+    const isMatch = await argon2.verify(user.password, password);
     if (!isMatch) {
       return {
         errors: [
