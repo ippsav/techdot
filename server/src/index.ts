@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import "dotenv-safe/config";
 import { ApolloServer } from "apollo-server-express";
+import cors from "cors";
 import express from "express";
 import { UserResolver } from "./resolvers/user";
 import { EventResolver } from "./resolvers/event";
@@ -18,6 +19,12 @@ const main = async () => {
   const redisClient = redis.createClient();
   const RedisStore = connectRedis(session);
 
+  app.use(
+    cors({
+      credentials: true,
+      origin: "http://localhost:3000",
+    })
+  );
   app.use(
     session({
       name: "qid",
@@ -44,7 +51,7 @@ const main = async () => {
       res,
     }),
   });
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(PORT, () => {
     console.log("server running at port ", PORT);
