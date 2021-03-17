@@ -16,6 +16,7 @@ export type Scalars = {
 
 export type Query = {
   __typename?: 'Query';
+  me?: Maybe<User>;
   events: Array<Event>;
   event: Event;
 };
@@ -28,6 +29,15 @@ export type QueryEventsArgs = {
 
 export type QueryEventArgs = {
   id: Scalars['String'];
+};
+
+export type User = {
+  __typename?: 'User';
+  id: Scalars['String'];
+  username: Scalars['String'];
+  email: Scalars['String'];
+  createdAt: Scalars['String'];
+  updatedAt: Scalars['String'];
 };
 
 export type Event = {
@@ -55,7 +65,7 @@ export type MutationRegisterArgs = {
 
 
 export type MutationLoginArgs = {
-  options: UserInputPassword;
+  options: UserInputLogin;
 };
 
 
@@ -80,23 +90,14 @@ export type FieldError = {
   message: Scalars['String'];
 };
 
-export type User = {
-  __typename?: 'User';
-  id: Scalars['String'];
-  username: Scalars['String'];
-  email: Scalars['String'];
-  createdAt: Scalars['String'];
-  updatedAt: Scalars['String'];
-};
-
 export type UserInputRegister = {
   username: Scalars['String'];
   password: Scalars['String'];
   email: Scalars['String'];
 };
 
-export type UserInputPassword = {
-  username: Scalars['String'];
+export type UserInputLogin = {
+  usernameOrEmail: Scalars['String'];
   password: Scalars['String'];
 };
 
@@ -105,8 +106,19 @@ export type EventFields = {
   eventDate: Scalars['String'];
 };
 
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = (
+  { __typename?: 'Query' }
+  & { me?: Maybe<(
+    { __typename?: 'User' }
+    & Pick<User, 'username' | 'id'>
+  )> }
+);
+
 export type LoginMutationVariables = Exact<{
-  options: UserInputPassword;
+  options: UserInputLogin;
 }>;
 
 
@@ -122,6 +134,14 @@ export type LoginMutation = (
       & Pick<User, 'id' | 'username' | 'email'>
     )> }
   ) }
+);
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'logout'>
 );
 
 export type RegisterMutationVariables = Exact<{
@@ -144,8 +164,20 @@ export type RegisterMutation = (
 );
 
 
+export const MeDocument = gql`
+    query Me {
+  me {
+    username
+    id
+  }
+}
+    `;
+
+export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
 export const LoginDocument = gql`
-    mutation Login($options: UserInputPassword!) {
+    mutation Login($options: UserInputLogin!) {
   login(options: $options) {
     errors {
       field
@@ -162,6 +194,15 @@ export const LoginDocument = gql`
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
+};
+export const LogoutDocument = gql`
+    mutation Logout {
+  logout
+}
+    `;
+
+export function useLogoutMutation() {
+  return Urql.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument);
 };
 export const RegisterDocument = gql`
     mutation Register($options: UserInputRegister!) {

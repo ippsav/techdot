@@ -7,28 +7,34 @@ import {
   InputType,
   Mutation,
   ObjectType,
+  Query,
   Resolver,
 } from "type-graphql";
 import { User } from "../entities/User";
 import { isEmail } from "../utils/isEmail";
 @InputType()
-class UserInputPassword {
+class UserInputLogin {
+  @Field()
+  usernameOrEmail: string;
+  @Field()
+  password: string;
+}
+
+@InputType()
+class UserInputRegister {
   @Field()
   username: string;
   @Field()
   password: string;
-}
-@InputType()
-class UserInputRegister extends UserInputPassword {
   @Field()
   email: string;
 }
-
 // @InputType()
 // class UserInputRegister extends UserInputPassword {
 //   @Field()
 //   email: string;
 // }
+
 @ObjectType()
 class FieldError {
   @Field()
@@ -46,6 +52,23 @@ class UserResponse {
 
 @Resolver(User)
 export class UserResolver {
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { prisma, req }: MyContext): Promise<User | null> {
+    console.log(req.session.userId);
+    if (typeof req.session.userId === "undefined") {
+      throw new Error("not authenticated");
+    }
+    const { userId } = req.session;
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) {
+      throw new Error("qid not valid");
+    }
+    return user;
+  }
   @Mutation(() => UserResponse)
   async register(
     @Arg("options") options: UserInputRegister,
@@ -128,39 +151,31 @@ export class UserResolver {
   }
   @Mutation(() => UserResponse)
   async login(
-    @Arg("options") options: UserInputPassword,
+    @Arg("options") options: UserInputLogin,
     @Ctx() { prisma, req }: MyContext
   ): Promise<UserResponse> {
-    const { username, password } = options;
-    let user = null;
-    if (username.includes("@") && !isEmail(username)) {
+    const { usernameOrEmail, password } = options;
+    if (usernameOrEmail.includes("@") && !isEmail(usernameOrEmail)) {
       return {
         errors: [
           {
-            field: "username",
-            message: "wrong email format.",
+            field: "usernameOrEmail",
+            message: "wrong email format",
           },
         ],
       };
-    } else if (isEmail(username)) {
-      user = await prisma.user.findUnique({
-        where: {
-          email: username,
-        },
-      });
-    } else {
-      user = await prisma.user.findUnique({
-        where: {
-          username,
-        },
-      });
     }
+    const user = await prisma.user.findUnique({
+      where: isEmail(usernameOrEmail)
+        ? { email: usernameOrEmail }
+        : { username: usernameOrEmail },
+    });
     if (!user) {
       return {
         errors: [
           {
-            field: "username",
-            message: "user not found.",
+            field: "usernameOrEmail",
+            message: "user not found",
           },
         ],
       };
