@@ -8,8 +8,12 @@ export const isEmail = (email: string): Boolean => {
   if (email.indexOf(sym[0]) > email.indexOf(sym[1])) {
     return false;
   }
-  const [_, p2] = email.split(".");
-  if (p2.length > 3) {
+  const [_, p2] = email.split("@");
+  const [d1,d2] = p2.split(".");
+  if(d1.length <3){
+    return false
+  }
+  if (d2.length > 3) {
     return false;
   }
   return true;

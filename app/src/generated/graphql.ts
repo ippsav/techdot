@@ -44,6 +44,7 @@ export type Event = {
   __typename?: 'Event';
   id: Scalars['String'];
   name: Scalars['String'];
+  location: Scalars['String'];
   eventDate: Scalars['String'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
@@ -104,6 +105,7 @@ export type UserInputLogin = {
 export type EventFields = {
   name: Scalars['String'];
   eventDate: Scalars['String'];
+  location: Scalars['String'];
 };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -113,7 +115,7 @@ export type MeQuery = (
   { __typename?: 'Query' }
   & { me?: Maybe<(
     { __typename?: 'User' }
-    & Pick<User, 'username' | 'id'>
+    & Pick<User, 'username' | 'id' | 'email'>
   )> }
 );
 
@@ -169,6 +171,7 @@ export const MeDocument = gql`
   me {
     username
     id
+    email
   }
 }
     `;

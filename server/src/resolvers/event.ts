@@ -17,6 +17,8 @@ class EventFields {
   name: string;
   @Field()
   eventDate: string;
+  @Field()
+  location: string;
 }
 
 @Resolver(Event)
@@ -26,12 +28,13 @@ export class EventResolver {
     @Arg("options") options: EventFields,
     @Ctx() { prisma }: MyContext
   ): Promise<Event> {
-    const { eventDate, name } = options;
+    const { eventDate, name, location } = options;
     const date = dayjs(eventDate).toDate();
     const event = await prisma.event.create({
       data: {
         name,
         eventDate: date,
+        location,
       },
     });
     return event;

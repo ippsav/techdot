@@ -1,0 +1,9 @@
+sudo docker run -p 5432:5432 -d\
+    -e POSTGRES_PASSWORD=postgres \
+    -e POSTGRES_USER=postgres \
+    -e POSTGRES_DB=techdot-db\
+    -v pgdata:/var/lib/postgresql/data \
+    postgres
+sudo docker run -p 6379:6379 -d \
+    -v pgdata:/var/lib/redis/data \
+   redis 

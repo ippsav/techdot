@@ -54,7 +54,6 @@ class UserResponse {
 export class UserResolver {
   @Query(() => User, { nullable: true })
   async me(@Ctx() { prisma, req }: MyContext): Promise<User | null> {
-    console.log(req.session.userId);
     if (typeof req.session.userId === "undefined") {
       throw new Error("not authenticated");
     }

@@ -6,6 +6,8 @@ export class Event {
   id: string;
   @Field()
   name: string;
+  @Field()
+  location: string;
   @Field(() => String)
   eventDate: Date;
   @Field(() => String)

@@ -6,6 +6,7 @@ import {
   MeDocument,
   MeQuery,
 } from "../generated/graphql";
+import { devtoolsExchange } from "@urql/devtools";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 
 export const createUrqlClient = (ssrExchange: any) => ({
@@ -14,6 +15,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
     credentials: "include" as const,
   },
   exchanges: [
+    devtoolsExchange,
     dedupExchange,
     cacheExchange({
       updates: {
@@ -38,14 +40,9 @@ export const createUrqlClient = (ssrExchange: any) => ({
               cache,
               { query: MeDocument },
               result,
-              (r, query) => {
-                if (!r.logout.valueOf()) {
-                  return query;
-                }
-                return {
-                  me: null,
-                };
-              }
+              () => ({
+                me: null,
+              })
             );
           },
         },
