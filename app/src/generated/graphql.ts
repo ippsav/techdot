@@ -12,6 +12,8 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  /** The `Upload` scalar type represents a file upload. */
+  Upload: any;
 };
 
 export type Query = {
@@ -19,11 +21,6 @@ export type Query = {
   me?: Maybe<User>;
   events: Array<Event>;
   event: Event;
-};
-
-
-export type QueryEventsArgs = {
-  name: Scalars['String'];
 };
 
 
@@ -45,7 +42,11 @@ export type Event = {
   id: Scalars['String'];
   name: Scalars['String'];
   location: Scalars['String'];
+  picture: Scalars['String'];
   eventDate: Scalars['String'];
+  capacity: Scalars['Float'];
+  startingHour: Scalars['Float'];
+  endingHour: Scalars['Float'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
 };
@@ -106,7 +107,23 @@ export type EventFields = {
   name: Scalars['String'];
   eventDate: Scalars['String'];
   location: Scalars['String'];
+  picture: Scalars['Upload'];
+  capacity: Scalars['Float'];
+  endingHour: Scalars['Float'];
+  startingHour: Scalars['Float'];
 };
+
+
+export type EventsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type EventsQuery = (
+  { __typename?: 'Query' }
+  & { events: Array<(
+    { __typename?: 'Event' }
+    & Pick<Event, 'id' | 'name' | 'endingHour' | 'startingHour' | 'picture' | 'capacity' | 'location' | 'eventDate'>
+  )> }
+);
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -117,6 +134,19 @@ export type MeQuery = (
     { __typename?: 'User' }
     & Pick<User, 'username' | 'id' | 'email'>
   )> }
+);
+
+export type CreateEventMutationVariables = Exact<{
+  options: EventFields;
+}>;
+
+
+export type CreateEventMutation = (
+  { __typename?: 'Mutation' }
+  & { createEvent: (
+    { __typename?: 'Event' }
+    & Pick<Event, 'id' | 'name' | 'picture' | 'eventDate' | 'createdAt'>
+  ) }
 );
 
 export type LoginMutationVariables = Exact<{
@@ -166,6 +196,24 @@ export type RegisterMutation = (
 );
 
 
+export const EventsDocument = gql`
+    query Events {
+  events {
+    id
+    name
+    endingHour
+    startingHour
+    picture
+    capacity
+    location
+    eventDate
+  }
+}
+    `;
+
+export function useEventsQuery(options: Omit<Urql.UseQueryArgs<EventsQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<EventsQuery>({ query: EventsDocument, ...options });
+};
 export const MeDocument = gql`
     query Me {
   me {
@@ -178,6 +226,21 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const CreateEventDocument = gql`
+    mutation CreateEvent($options: EventFields!) {
+  createEvent(options: $options) {
+    id
+    name
+    picture
+    eventDate
+    createdAt
+  }
+}
+    `;
+
+export function useCreateEventMutation() {
+  return Urql.useMutation<CreateEventMutation, CreateEventMutationVariables>(CreateEventDocument);
 };
 export const LoginDocument = gql`
     mutation Login($options: UserInputLogin!) {

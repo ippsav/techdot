@@ -13,6 +13,10 @@ import { withUrqlClient } from "next-urql";
 interface LoginProps {}
 const Login: React.FC<LoginProps> = ({}) => {
   const router = useRouter();
+  let { nextpage } = router.query;
+  if (nextpage !== "/create-event") {
+    nextpage = "/home";
+  }
   const [, login] = useLoginMutation();
   return (
     <Wrapper variant="small">
@@ -31,7 +35,7 @@ const Login: React.FC<LoginProps> = ({}) => {
             console.log(response.data.login.errors);
             setErrors(toErrorMap(response.data.login.errors));
           } else {
-            router.push("/");
+            router.push(nextpage as string);
           }
         }}
       >

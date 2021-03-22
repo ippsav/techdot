@@ -10,6 +10,10 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
+import { GraphQLUpload } from "graphql-upload";
+import { Upload } from "src/utils/types";
+import { createWriteStream } from "fs";
+import { v4 } from "uuid";
 
 @InputType()
 class EventFields {
@@ -19,6 +23,14 @@ class EventFields {
   eventDate: string;
   @Field()
   location: string;
+  @Field(() => GraphQLUpload)
+  picture: Upload;
+  @Field()
+  capacity: number;
+  @Field()
+  endingHour: number;
+  @Field()
+  startingHour: number;
 }
 
 @Resolver(Event)
@@ -26,29 +38,41 @@ export class EventResolver {
   @Mutation(() => Event)
   async createEvent(
     @Arg("options") options: EventFields,
-    @Ctx() { prisma }: MyContext
+    @Ctx() { prisma, req }: MyContext
   ): Promise<Event> {
-    const { eventDate, name, location } = options;
+    const { eventDate, picture } = options;
+    const { userId } = req.session;
+    const { createReadStream } = await picture;
     const date = dayjs(eventDate).toDate();
+    const idFilename = v4();
+    await createReadStream().pipe(
+      createWriteStream(__dirname + `/../images/${idFilename}`)
+    );
+    const pictureUrl = `http://localhost:7001/images/${idFilename}`;
+    // const event = await prisma.event.create({
+    //   data: {
+    //     name,
+    //     eventDate: date,
+    //     capacity,
+    //     location,
+    //     startingHour,
+    //     endingHour,
+    //     picture: pictureUrl,
+    //   },
+    // });
     const event = await prisma.event.create({
       data: {
-        name,
+        ...options,
         eventDate: date,
-        location,
+        picture: pictureUrl,
+        userId,
       },
     });
     return event;
   }
   @Query(() => [Event])
-  async events(
-    @Arg("name") name: string,
-    @Ctx() { prisma }: MyContext
-  ): Promise<Event[] | null> {
-    const events = await prisma.event.findMany({
-      where: {
-        name,
-      },
-    });
+  async events(@Ctx() { prisma }: MyContext): Promise<Event[] | null> {
+    const events = await prisma.event.findMany({});
     return events;
   }
   @Query(() => Event)

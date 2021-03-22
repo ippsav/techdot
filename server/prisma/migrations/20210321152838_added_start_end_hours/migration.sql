@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Event" ADD COLUMN     "startingHour" INTEGER NOT NULL DEFAULT 1,
+ADD COLUMN     "endingHour" INTEGER NOT NULL DEFAULT 1;

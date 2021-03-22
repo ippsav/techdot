@@ -10,12 +10,14 @@ import { PrismaClient } from "@prisma/client";
 import redis from "redis";
 import connectRedis from "connect-redis";
 import session from "express-session";
+import { graphqlUploadExpress } from "graphql-upload";
 
 const prisma = new PrismaClient();
 const { PORT, REDIS_SECRET } = process.env;
 
 const main = async () => {
   const app = express();
+  app.use("/images", express.static(__dirname + "/images"));
   const redisClient = redis.createClient();
   const RedisStore = connectRedis(session);
   app.use(
@@ -44,12 +46,15 @@ const main = async () => {
       resolvers: [UserResolver, EventResolver],
       validate: false,
     }),
+    uploads: false,
     context: ({ req, res }) => ({
       prisma,
       req,
       res,
     }),
   });
+  console.log(__dirname);
+  app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }));
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(PORT, () => {

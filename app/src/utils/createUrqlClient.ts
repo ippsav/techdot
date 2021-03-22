@@ -1,4 +1,4 @@
-import { dedupExchange, fetchExchange } from "@urql/core";
+import { dedupExchange } from "@urql/core";
 import { cacheExchange } from "@urql/exchange-graphcache";
 import {
   LoginMutation,
@@ -7,6 +7,7 @@ import {
   MeQuery,
 } from "../generated/graphql";
 import { devtoolsExchange } from "@urql/devtools";
+import { multipartFetchExchange } from "@urql/exchange-multipart-fetch";
 import { betterUpdateQuery } from "./betterUpdateQuery";
 
 export const createUrqlClient = (ssrExchange: any) => ({
@@ -49,6 +50,6 @@ export const createUrqlClient = (ssrExchange: any) => ({
       },
     }),
     ssrExchange,
-    fetchExchange,
+    multipartFetchExchange,
   ],
 });

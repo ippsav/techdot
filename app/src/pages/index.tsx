@@ -1,30 +1,32 @@
-import { Box, Button, Container, Flex, Heading, Text } from "@chakra-ui/react";
+import { Button, Container, Flex, Heading, Text } from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import React from "react";
 import { Layout } from "../components/Layout";
 import NextLink from "next/link";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import isAuth from "../customHooks/isAuth";
 
-const Index = () => (
-  <Layout>
-    <Flex flex="1" w="full" justify="center" align="center">
-      <Box>
-        <Heading textAlign="center" fontSize="4xl" fontWeight="black">
+const Index = () => {
+  isAuth("/home");
+  return (
+    <Layout>
+      <Flex justify="center" flexDir="column" my="auto">
+        <Heading textAlign="center" fontSize="6xl" fontWeight="black">
           TECHDOT
         </Heading>
         <Container mt={3}>
-          <Text fontSize="2xl" fontWeight="black">
+          <Text fontSize="3xl" fontWeight="black" textAlign="center">
             A place for communities and friends
           </Text>
         </Container>
-        <Flex align="center" mt={2} justify="center">
+        <Flex align="center" mt={4} justify="center">
           <NextLink href="/create-event">
-            <Button>Host an event</Button>
+            <Button size="lg">Host an event</Button>
           </NextLink>
         </Flex>
-      </Box>
-    </Flex>
-  </Layout>
-);
+      </Flex>
+    </Layout>
+  );
+};
 
 export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

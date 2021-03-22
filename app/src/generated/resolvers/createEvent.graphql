@@ -1,0 +1,9 @@
+mutation CreateEvent($options: EventFields!) {
+  createEvent(options: $options) {
+    id
+    name
+    picture
+    eventDate
+    createdAt
+  }
+}

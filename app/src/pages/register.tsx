@@ -24,7 +24,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
           if (response.data?.register.errors) {
             setErrors(toErrorMap(response.data.register.errors));
           } else {
-            router.push("/");
+            router.push("/home");
           }
         }}
       >
