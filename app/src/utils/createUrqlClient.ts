@@ -5,6 +5,9 @@ import {
   LogoutMutation,
   MeDocument,
   MeQuery,
+  ProfileDocument,
+  ProfileQuery,
+  UpdateProfileMutation,
 } from "../generated/graphql";
 import { devtoolsExchange } from "@urql/devtools";
 import { multipartFetchExchange } from "@urql/exchange-multipart-fetch";
@@ -44,6 +47,29 @@ export const createUrqlClient = (ssrExchange: any) => ({
               () => ({
                 me: null,
               })
+            );
+          },
+          updateProfile: (result, _args, cache, _info) => {
+            betterUpdateQuery<UpdateProfileMutation, ProfileQuery>(
+              cache,
+              { query: ProfileDocument },
+              result,
+              (r, query) => {
+                const { userId, user, id } = query.profile!;
+                if (r.updateProfile)
+                  return {
+                    profile: {
+                      id,
+                      avatar: r.updateProfile.avatar,
+                      bio: r.updateProfile.bio,
+                      userId,
+                      user,
+                    },
+                  };
+                else {
+                  return query;
+                }
+              }
             );
           },
         },

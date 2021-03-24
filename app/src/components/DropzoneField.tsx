@@ -13,7 +13,7 @@ export const DropzoneField: React.FC<FieldProps<any>> = ({
         <section>
           <div {...getRootProps()}>
             <input {...getInputProps()} />
-            <p>Drag 'n' drop some files here, or click to select files</p>
+            <p>Click or Drag and drop an image</p>
           </div>
         </section>
       )}

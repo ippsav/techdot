@@ -12,8 +12,12 @@ export default function isAuth(page?: string) {
     if (!data?.me && !fetching && router.pathname !== "/") {
       page = router.pathname;
       router.replace(`/login?nextpage=${page}`);
-    } else if (typeof page !== "undefined" && router.pathname !== "/") {
+    } else if (
+      typeof page === "string" &&
+      router.pathname === "/" &&
+      data?.me
+    ) {
       router.replace(page);
     }
-  }, [router, data]);
+  }, [router, data, fetching]);
 }

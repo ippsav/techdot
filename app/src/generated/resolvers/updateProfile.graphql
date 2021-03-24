@@ -1,0 +1,6 @@
+mutation UpdateProfile($options: ProfileArgs!) {
+  updateProfile(options: $options) {
+    avatar
+    bio
+  }
+}

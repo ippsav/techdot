@@ -21,6 +21,7 @@ export type Query = {
   me?: Maybe<User>;
   events: Array<Event>;
   event: Event;
+  profile?: Maybe<Profile>;
 };
 
 
@@ -46,9 +47,19 @@ export type Event = {
   eventDate: Scalars['String'];
   capacity: Scalars['Float'];
   startingHour: Scalars['Float'];
+  userId: Scalars['String'];
   endingHour: Scalars['Float'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
+};
+
+export type Profile = {
+  __typename?: 'Profile';
+  id: Scalars['String'];
+  avatar?: Maybe<Scalars['String']>;
+  bio?: Maybe<Scalars['String']>;
+  userId: Scalars['String'];
+  user: User;
 };
 
 export type Mutation = {
@@ -58,6 +69,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   createEvent: Event;
   deleteEvent: Scalars['Boolean'];
+  updateProfile: Profile;
 };
 
 
@@ -78,6 +90,11 @@ export type MutationCreateEventArgs = {
 
 export type MutationDeleteEventArgs = {
   id: Scalars['String'];
+};
+
+
+export type MutationUpdateProfileArgs = {
+  options: ProfileArgs;
 };
 
 export type UserResponse = {
@@ -114,6 +131,11 @@ export type EventFields = {
 };
 
 
+export type ProfileArgs = {
+  avatar?: Maybe<Scalars['Upload']>;
+  bio?: Maybe<Scalars['String']>;
+};
+
 export type EventsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -133,6 +155,21 @@ export type MeQuery = (
   & { me?: Maybe<(
     { __typename?: 'User' }
     & Pick<User, 'username' | 'id' | 'email'>
+  )> }
+);
+
+export type ProfileQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProfileQuery = (
+  { __typename?: 'Query' }
+  & { profile?: Maybe<(
+    { __typename?: 'Profile' }
+    & Pick<Profile, 'id' | 'userId' | 'avatar' | 'bio'>
+    & { user: (
+      { __typename?: 'User' }
+      & Pick<User, 'username' | 'id'>
+    ) }
   )> }
 );
 
@@ -195,6 +232,19 @@ export type RegisterMutation = (
   ) }
 );
 
+export type UpdateProfileMutationVariables = Exact<{
+  options: ProfileArgs;
+}>;
+
+
+export type UpdateProfileMutation = (
+  { __typename?: 'Mutation' }
+  & { updateProfile: (
+    { __typename?: 'Profile' }
+    & Pick<Profile, 'avatar' | 'bio'>
+  ) }
+);
+
 
 export const EventsDocument = gql`
     query Events {
@@ -226,6 +276,24 @@ export const MeDocument = gql`
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
+};
+export const ProfileDocument = gql`
+    query Profile {
+  profile {
+    id
+    userId
+    avatar
+    bio
+    user {
+      username
+      id
+    }
+  }
+}
+    `;
+
+export function useProfileQuery(options: Omit<Urql.UseQueryArgs<ProfileQueryVariables>, 'query'> = {}) {
+  return Urql.useQuery<ProfileQuery>({ query: ProfileDocument, ...options });
 };
 export const CreateEventDocument = gql`
     mutation CreateEvent($options: EventFields!) {
@@ -288,4 +356,16 @@ export const RegisterDocument = gql`
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
+};
+export const UpdateProfileDocument = gql`
+    mutation UpdateProfile($options: ProfileArgs!) {
+  updateProfile(options: $options) {
+    avatar
+    bio
+  }
+}
+    `;
+
+export function useUpdateProfileMutation() {
+  return Urql.useMutation<UpdateProfileMutation, UpdateProfileMutationVariables>(UpdateProfileDocument);
 };

@@ -1,20 +1,18 @@
 import { Flex, Text } from "@chakra-ui/layout";
 import { Box, Button, Spinner } from "@chakra-ui/react";
 import NextLink from "next/link";
-import { useRouter } from "next/router";
 import React from "react";
-import { useLogoutMutation, useMeQuery } from "../generated/graphql";
+import { useProfileQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
+import { Avatar } from "./Avatar";
 
 interface NavbarProps {}
 
 export const Navbar: React.FC<NavbarProps> = ({}) => {
-  const [{ fetching, data }] = useMeQuery({
+  const [{ fetching, data }] = useProfileQuery({
     pause: isServer(),
   });
-  const router = useRouter();
 
-  const [, logout] = useLogoutMutation();
   let body = null;
   if (fetching) {
     body = (
@@ -31,7 +29,8 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
       </Flex>
     );
   }
-  if (!fetching && !data?.me) {
+  console.log(data?.profile);
+  if (!fetching && !data?.profile) {
     body = (
       <Flex marginLeft="auto" w="26" marginRight={5} justify="space-between">
         <Box marginRight={4}>
@@ -50,7 +49,7 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
         </Box>
       </Flex>
     );
-  } else if (data?.me) {
+  } else if (data?.profile) {
     body = (
       <Flex
         alignItems="center"
@@ -59,22 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({}) => {
         marginRight={5}
         justify="space-between"
       >
-        <Text fontSize="large" my="auto">
-          {data.me?.username.charAt(0).toUpperCase() +
-            data.me.username.slice(1)}
-        </Text>
-        <Box ml={2}>
-          <Button
-            colorScheme="whiteAlpha"
-            variant="ghost"
-            onClick={() => {
-              logout();
-              router.push("/");
-            }}
-          >
-            Logout
-          </Button>
-        </Box>
+        <Avatar avatar="hi" />
       </Flex>
     );
   }
