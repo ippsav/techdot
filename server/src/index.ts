@@ -5,6 +5,7 @@ import cors from "cors";
 import express from "express";
 import { UserResolver } from "./resolvers/user";
 import { EventResolver } from "./resolvers/event";
+import { ProfileResolver } from "./resolvers/profile";
 import { buildSchema } from "type-graphql";
 import { PrismaClient } from "@prisma/client";
 import redis from "redis";
@@ -43,7 +44,7 @@ const main = async () => {
   );
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, EventResolver],
+      resolvers: [UserResolver, EventResolver, ProfileResolver],
       validate: false,
     }),
     uploads: false,

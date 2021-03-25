@@ -1,5 +1,6 @@
 import argon2 from "argon2";
 import { MyContext } from "src/utils/Context";
+import { promises } from "fs";
 import {
   Arg,
   Ctx,
@@ -9,9 +10,11 @@ import {
   ObjectType,
   Query,
   Resolver,
+  UseMiddleware,
 } from "type-graphql";
 import { User } from "../entities/User";
 import { isEmail } from "../utils/isEmail";
+import { isAuth } from "../middlewares/Auth";
 @InputType()
 class UserInputLogin {
   @Field()
@@ -52,11 +55,9 @@ class UserResponse {
 
 @Resolver(User)
 export class UserResolver {
+  @UseMiddleware(isAuth)
   @Query(() => User, { nullable: true })
   async me(@Ctx() { prisma, req }: MyContext): Promise<User | null> {
-    if (typeof req.session.userId === "undefined") {
-      throw new Error("not authenticated");
-    }
     const { userId } = req.session;
     const user = await prisma.user.findUnique({
       where: {
@@ -142,6 +143,14 @@ export class UserResolver {
         email,
         password: hashedPassword,
       },
+    });
+    await prisma.profile.create({
+      data: {
+        userId: user.id,
+      },
+    });
+    await promises.mkdir(__dirname + `/../images/${user.id}/events`, {
+      recursive: true,
     });
     req.session.userId = user.id;
     return {
